@@ -23,7 +23,7 @@ consultsql = ConsultSQL(server, username, password)
 resultadoF = consultsql.get(
 codcoligada=1,
 codsistema='P',
-codsentenca='WEBSERVICE',
+codsentenca='WS_ppessoa',
 parameters={}
 )
 
@@ -37,7 +37,7 @@ key_tables = {"pfunc":"id",
 
 # Recebendo informações da tabela e opção de operação (insert)
 table = 'ppessoa' #input("Favor informar a tabela: ")
-option = 'i' #input("Qual operação deseja? ")
+# option = 'i' #input("Qual operação deseja? ")
 
 # Definindo local para salvar o log
 if platform.system() == 'Windows':
@@ -71,8 +71,7 @@ def pretty_print(elem):
     pretty = minidom.parseString(xml).toprettyxml(indent='   ')
     """Descomentar a chamada da função de salvar_saida caso necessário salvar"""
     # salvar_saida(pretty)
-    if option == 'i':
-        push_dbpostgres_insert(pretty)
+    push_dbpostgres_insert(pretty)
 
 def push_dbpostgres_insert(pretty):
     soup = BeautifulSoup(pretty, 'xml')
