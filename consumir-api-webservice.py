@@ -20,23 +20,22 @@ password = totvs_auth.get('password')
 
 # Realizando a consulta via Webservice na Totvs
 consultsql = ConsultSQL(server, username, password)
-resultadoF = consultsql.get(
-codcoligada=1,
-codsistema='P',
-codsentenca='WS_ppessoa',
-parameters={}
-)
+# resultadoF = consultsql.get(
+# codcoligada=1,
+# codsistema='P',
+# codsentenca='WS_ppessoa',
+# parameters={}
+# )
 
 # Dicionário de chaves únicas nas tabelas para acesso
 key_tables = {"pfunc":"id",
               "ppessoa":"codigo",
               "pfuncao":"id",
               "gcoligada":"codcoligada",
-              "pcodinstrucao":"codcliente",
               "psecao":"id"}
 
 # Recebendo informações da tabela e opção de operação (insert)
-table = 'ppessoa' #input("Favor informar a tabela: ")
+# table = 'ppessoa' #input("Favor informar a tabela: ")
 # option = 'i' #input("Qual operação deseja? ")
 
 # Definindo local para salvar o log
@@ -55,8 +54,8 @@ if not os.path.isdir(dir_save):
 date_var = datetime.now().strftime('%Y-%m-%d_T%H-%M-%S')
 
 # Esta função cria um arquivo e salva o log na pasta específicada
-def salvar_saida(pretty):
-    arquivo_log = open(dir_save + 'log_' + date_var + '.xml', 'w+', encoding="utf-8")  # O 'w' indica write (escrita)
+def salvar_saida(pretty, key_table_idx):
+    arquivo_log = open(dir_save + key_table_idx + '_log_' + date_var + '.xml', 'w+', encoding="utf-8")  # O 'w' indica write (escrita)
     arquivo_log.write(pretty)
     arquivo_log.close()
     
@@ -66,14 +65,15 @@ def salvar_saida(pretty):
     arquivo.close()
     """
 
-def pretty_print(elem):
+def pretty_print(elem, key_table_idx):
     xml = etree.tostring(elem)
     pretty = minidom.parseString(xml).toprettyxml(indent='   ')
     """Descomentar a chamada da função de salvar_saida caso necessário salvar"""
-    # salvar_saida(pretty)
-    push_dbpostgres_insert(pretty)
+    salvar_saida(pretty, key_table_idx)
+    push_dbpostgres_insert(pretty, key_table_idx)
 
-def push_dbpostgres_insert(pretty):
+def push_dbpostgres_insert(pretty, key_table_idx):
+    print(key_table_idx)
     soup = BeautifulSoup(pretty, 'xml')
     
     resultado_total = soup.find_all('resultado')
@@ -89,7 +89,7 @@ def push_dbpostgres_insert(pretty):
     con = psycopg.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_name_user, password=t_password)
     cur = con.cursor()
     
-    cur.execute(f"SELECT {key_tables[table]} FROM {totvs_auth.get('schema')}.rm_{table};")
+    cur.execute(f"SELECT {key_tables[key_table_idx]} FROM {totvs_auth.get('schema')}.rm_{key_table_idx};")
     res_tabela = cur.fetchall()
 
     for i1 in range(0, len(resultado_total)):
@@ -100,8 +100,8 @@ def push_dbpostgres_insert(pretty):
         
         for i4 in range(0, len(resultado_colaborador)):
 
-            if resultado_colaborador[i4].name == key_tables[table]:
-                tag_coluna = key_tables[table] + ' ='
+            if resultado_colaborador[i4].name == key_tables[key_table_idx]:
+                tag_coluna = key_tables[key_table_idx] + ' ='
                 coluna_key = int(resultado_colaborador[i4].get_text(resultado_colaborador[i4].name))
                 print(coluna_key)
                 break
@@ -119,16 +119,25 @@ def push_dbpostgres_insert(pretty):
                         conjunto_dados.append(dado[i3])
                         
                         if (coluna_key,) in res_tabela:
-                            cur.execute(f"UPDATE {totvs_auth.get('schema')}.rm_{table} SET {tag} = $${dado[i3]}$$ WHERE {tag_coluna} '{coluna_key}'")
+                            cur.execute(f"UPDATE {totvs_auth.get('schema')}.rm_{key_table_idx} SET {tag} = $${dado[i3]}$$ WHERE {tag_coluna} '{coluna_key}'")
                             con.commit()
 
         conjunto_tags = str(tuple(conjunto_tags)).replace("'","")
         conjunto_dados = str(tuple(conjunto_dados)).replace('"','$$')
         
         if (coluna_key,) not in res_tabela:
-            cur.execute(f"INSERT INTO {totvs_auth.get('schema')}.rm_{table}{conjunto_tags} VALUES {conjunto_dados}")
+            cur.execute(f"INSERT INTO {totvs_auth.get('schema')}.rm_{key_table_idx}{conjunto_tags} VALUES {conjunto_dados}")
             con.commit()
             
     con.close()
 
-pretty_print(resultadoF)
+for key_table_idx in key_tables.keys():
+    
+    resultadoF = consultsql.get(
+    codcoligada=1,
+    codsistema='P',
+    codsentenca='WS_'+ key_table_idx,
+    parameters={}
+    )
+    
+    pretty_print(resultadoF, key_table_idx)
