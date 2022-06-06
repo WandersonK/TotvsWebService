@@ -40,10 +40,10 @@ key_tables = {"pfunc":"id",
 
 # Definindo local para salvar o log
 if platform.system() == 'Windows':
-    dir_save = '.\\logrm\\'  # Windows
+    dir_save = os.environ['HOMEPATH'] + '\\logrm\\'  # Windows
     arquivo_save = dir_save + 'saida.xml'  # Windows
 elif platform.system() == 'Linux':    
-    dir_save = './logrm/'  # Linux
+    dir_save = os.environ['HOME'] + '/logrm/'  # Linux
     arquivo_save = dir_save + 'saida.xml'  # Linux
 
 # Criando a pasta de log caso ela não exita
@@ -51,11 +51,14 @@ if not os.path.isdir(dir_save):
     os.makedirs(dir_save)
 
 # Salva a data e hora para afim de criar o arquivo de log específico
-date_var = datetime.now().strftime('%Y-%m-%d_T%H-%M-%S')
+# date_var = datetime.now().strftime('%Y-%m-%d_T%H-%M-%S')
 
 # Esta função cria um arquivo e salva o log na pasta específicada
 def salvar_saida(pretty, key_table_idx):
-    arquivo_log = open(dir_save + key_table_idx + '_log_' + date_var + '.xml', 'w+', encoding="utf-8")  # O 'w' indica write (escrita)
+    # Salva a data e hora para afim de criar o arquivo de log específico
+    date_var = datetime.now().strftime('%Y-%m-%d_T%H-%M-%S')
+    
+    arquivo_log = open(dir_save + date_var + '_log_' + key_table_idx + '.xml', 'w+', encoding="utf-8")  # O 'w' indica write (escrita)
     arquivo_log.write(pretty)
     arquivo_log.close()
     
@@ -73,7 +76,6 @@ def pretty_print(elem, key_table_idx):
     push_dbpostgres_insert(pretty, key_table_idx)
 
 def push_dbpostgres_insert(pretty, key_table_idx):
-    print(key_table_idx)
     soup = BeautifulSoup(pretty, 'xml')
     
     resultado_total = soup.find_all('resultado')
@@ -91,35 +93,52 @@ def push_dbpostgres_insert(pretty, key_table_idx):
     
     cur.execute(f"SELECT {key_tables[key_table_idx]} FROM {totvs_auth.get('schema')}.rm_{key_table_idx};")
     res_tabela = cur.fetchall()
-
+    
     for i1 in range(0, len(resultado_total)):
         
         conjunto_tags = []
         conjunto_dados = []
         resultado_colaborador = resultado_total[i1].contents
         
-        for i4 in range(0, len(resultado_colaborador)):
-
-            if resultado_colaborador[i4].name == key_tables[key_table_idx]:
-                tag_coluna = key_tables[key_table_idx] + ' ='
-                coluna_key = int(resultado_colaborador[i4].get_text(resultado_colaborador[i4].name))
-                print(coluna_key)
-                break
-        
         for i2 in range(0, len(resultado_colaborador)):
-            
-            if resultado_colaborador[i2] != '\n':
-                tag = resultado_colaborador[i2].name
+
+            if resultado_colaborador[i2].name == key_tables[key_table_idx]:
+                tag_coluna = key_tables[key_table_idx] + ' ='
+                coluna_key = int(resultado_colaborador[i2].get_text(resultado_colaborador[i2].name))
                 
-                if resultado_colaborador[i2].get_text(tag) != '' and tag != 'salario':
-                    dado = resultado_colaborador[i2].contents
+                cur.execute(f"SELECT recmodifiedon FROM {totvs_auth.get('schema')}.rm_{key_table_idx} WHERE {tag_coluna} {coluna_key};")
+                recmodifiedon_list = cur.fetchall()
+                
+                break
+            
+        for i3 in range(0, len(resultado_colaborador)):
+            
+            if resultado_colaborador[i3].name == 'recmodifiedon' and recmodifiedon_list != []:
+                recmodifiedon_tuple = recmodifiedon_list[0]
+                data_tabela = recmodifiedon_tuple[0]
+                
+                data_xml = resultado_colaborador[i3].get_text(resultado_colaborador[i3].name)
+                
+                boll_recmodifiedon = data_xml > data_tabela.strftime('%Y-%m-%dT%H:%M:%S')
+                
+                break
+            else:
+                boll_recmodifiedon = False
+                
+        for i4 in range(0, len(resultado_colaborador)):
+            
+            if resultado_colaborador[i4] != '\n':
+                tag = resultado_colaborador[i4].name
+                
+                if resultado_colaborador[i4].get_text(tag) != '' and tag != 'salario':
+                    dado = resultado_colaborador[i4].contents
                     conjunto_tags.append(tag)
         
-                    for i3 in range(0, len(dado)):
-                        conjunto_dados.append(dado[i3])
+                    for i5 in range(0, len(dado)):
+                        conjunto_dados.append(dado[i5])
                         
-                        if (coluna_key,) in res_tabela:
-                            cur.execute(f"UPDATE {totvs_auth.get('schema')}.rm_{key_table_idx} SET {tag} = $${dado[i3]}$$ WHERE {tag_coluna} '{coluna_key}'")
+                        if (coluna_key,) in res_tabela and boll_recmodifiedon:
+                            cur.execute(f"UPDATE {totvs_auth.get('schema')}.rm_{key_table_idx} SET {tag} = $${dado[i5]}$$ WHERE {tag_coluna} '{coluna_key}'")
                             con.commit()
 
         conjunto_tags = str(tuple(conjunto_tags)).replace("'","")
@@ -136,7 +155,7 @@ for key_table_idx in key_tables.keys():
     resultadoF = consultsql.get(
     codcoligada=1,
     codsistema='P',
-    codsentenca='WS_'+ key_table_idx,
+    codsentenca='WS_' + key_table_idx,
     parameters={}
     )
     
