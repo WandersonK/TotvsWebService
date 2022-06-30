@@ -150,7 +150,7 @@ def push_dbpostgres_insert(pretty, key_table_idx):
             con.commit()
             
     con.close()
-
+ 
 for key_table_idx in key_tables.keys():
     
     resultadoF = consultsql.get(
