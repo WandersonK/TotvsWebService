@@ -10,7 +10,6 @@ totvs_auth = {
     'server' : '***************',
     'username' : '***************',
     'password' : '***************',
-    'schema' : '***************'
 }
 
 db_auth = {
@@ -19,5 +18,8 @@ db_auth = {
     't_dbname' : 'testes',
     't_name_user' : '***************',
     't_password' : '***************'
+
+    # Schema banco
+    'schema' : '***************' # Esse é o schema do seu banco PostgreSQL, na qual será feito o INSERT ou UPDATE
 }
 ```

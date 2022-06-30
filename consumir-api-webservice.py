@@ -43,7 +43,8 @@ if platform.system() == 'Windows':
     dir_save = os.environ['HOMEPATH'] + '\\logrm\\'  # Windows
     arquivo_save = dir_save + 'saida.xml'  # Windows
 elif platform.system() == 'Linux':    
-    dir_save = os.environ['HOME'] + '/logrm/'  # Linux
+    # dir_save = os.environ['HOME'] + '/logrm/'  # Linux
+    dir_save = '/var/log/logrm/' # Linux
     arquivo_save = dir_save + 'saida.xml'  # Linux
 
 # Criando a pasta de log caso ela não exita
@@ -91,7 +92,7 @@ def push_dbpostgres_insert(pretty, key_table_idx):
     con = psycopg.connect(host=t_host, port=t_port, dbname=t_dbname, user=t_name_user, password=t_password)
     cur = con.cursor()
     
-    cur.execute(f"SELECT {key_tables[key_table_idx]} FROM {totvs_auth.get('schema')}.rm_{key_table_idx};")
+    cur.execute(f"SELECT {key_tables[key_table_idx]} FROM {db_auth.get('schema')}.rm_{key_table_idx};")
     res_tabela = cur.fetchall()
     
     for i1 in range(0, len(resultado_total)):
@@ -106,7 +107,7 @@ def push_dbpostgres_insert(pretty, key_table_idx):
                 tag_coluna = key_tables[key_table_idx] + ' ='
                 coluna_key = int(resultado_colaborador[i2].get_text(resultado_colaborador[i2].name))
                 
-                cur.execute(f"SELECT recmodifiedon FROM {totvs_auth.get('schema')}.rm_{key_table_idx} WHERE {tag_coluna} {coluna_key};")
+                cur.execute(f"SELECT recmodifiedon FROM {db_auth.get('schema')}.rm_{key_table_idx} WHERE {tag_coluna} {coluna_key};")
                 recmodifiedon_list = cur.fetchall()
                 
                 break
@@ -133,19 +134,19 @@ def push_dbpostgres_insert(pretty, key_table_idx):
                 if resultado_colaborador[i4].get_text(tag) != '' and tag != 'salario':
                     dado = resultado_colaborador[i4].contents
                     conjunto_tags.append(tag)
-        
+
                     for i5 in range(0, len(dado)):
                         conjunto_dados.append(dado[i5])
                         
                         if (coluna_key,) in res_tabela and boll_recmodifiedon:
-                            cur.execute(f"UPDATE {totvs_auth.get('schema')}.rm_{key_table_idx} SET {tag} = $${dado[i5]}$$ WHERE {tag_coluna} '{coluna_key}'")
+                            cur.execute(f"UPDATE {db_auth.get('schema')}.rm_{key_table_idx} SET {tag} = $${dado[i5]}$$ WHERE {tag_coluna} '{coluna_key}'")
                             con.commit()
 
         conjunto_tags = str(tuple(conjunto_tags)).replace("'","")
         conjunto_dados = str(tuple(conjunto_dados)).replace('"','$$')
         
         if (coluna_key,) not in res_tabela:
-            cur.execute(f"INSERT INTO {totvs_auth.get('schema')}.rm_{key_table_idx}{conjunto_tags} VALUES {conjunto_dados}")
+            cur.execute(f"INSERT INTO {db_auth.get('schema')}.rm_{key_table_idx}{conjunto_tags} VALUES {conjunto_dados}")
             con.commit()
             
     con.close()
