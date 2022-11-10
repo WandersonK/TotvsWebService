@@ -61,7 +61,6 @@ def push_dbpostgres_insert(conteudo_xml, key_table_idx):
     soup = BeautifulSoup(conteudo_xml, 'xml')
     resultado_total = soup.find_all('resultado')
 
-
     t_host = db_auth.get('t_host')
     t_port = db_auth.get('t_port')
     t_dbname = db_auth.get('t_dbname')

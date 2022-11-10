@@ -1,5 +1,5 @@
 # TotvsWebService
-Integração Banco Totvs RM com Postgresql
+## Integração Banco Totvs RM com Postgresql
 
 O arquivo de credenciais (credential.py), possui a seguinte estrutura, basta cria-lo na pasta do projeto, e preencher com as informações necessários para conexão.
 
@@ -23,3 +23,18 @@ db_auth = {
     'schema' : '***************' # Esse é o schema do seu banco PostgreSQL, na qual será feito o INSERT ou UPDATE
 }
 ```
+
+Pacotes necessários:
+
+* pip install totvserprm
+* pip install beautifulsoup4
+* pip install psycopg
+* pip install lxml
+
+Na pasta DDL_Banco estão as DDLs para criação das tabelas utilizadas aqui. Caso necessário, altere conforme suas necessidades.
+
+* GCOLIGADA
+* PFUNC
+* PFUNCAO
+* PPESSOA
+* PSECAO

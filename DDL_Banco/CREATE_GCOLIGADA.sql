@@ -1,0 +1,38 @@
+-- Informar seu schema abaixo
+CREATE TABLE <schema>.rm_gcoligada (
+    CODCOLIGADA smallint NOT NULL,
+    NOMEFANTASIA VARCHAR(255) NULL,
+    CGC VARCHAR(20) NULL,
+    NOME VARCHAR(255) NULL,
+    INSCRICAOESTADUAL VARCHAR(20) NULL,
+    TELEFONE VARCHAR(15) NULL,
+    FAX VARCHAR(15) NULL,
+    EMAIL VARCHAR(60) NULL,
+    RUA VARCHAR(100) NULL,
+    NUMERO VARCHAR(8) NULL,
+    COMPLEMENTO VARCHAR(60) NULL,
+    BAIRRO VARCHAR(80) NULL,
+    CIDADE VARCHAR(32) NULL,
+    ESTADO VARCHAR(2) NULL,
+    PAIS VARCHAR(20) NULL,
+    CEP VARCHAR(9) NULL,
+    CONTROLACGC smallint NULL,
+    CONTROLE1 smallint NULL,
+    CONTROLE2 smallint NULL,
+    CONTROLE3 smallint NULL,
+    IDIMAGEM int NULL,
+    PRODUTORRURAL VARCHAR(1) NULL,
+    ATIVO VARCHAR(1) NULL,
+    CODEXTERNO VARCHAR(10) NULL,
+    IMPORTADA VARCHAR(1) NULL,
+    DATALIMITELICENCAS  date NULL,
+    RECCREATEDBY VARCHAR(50) NULL,
+    RECCREATEDON  timestamp without time zone NULL,
+    RECMODIFIEDBY VARCHAR(50) NULL,
+    RECMODIFIEDON  timestamp without time zone NULL
+
+    --PRIMARY KEY (CODCOLIGADA)  -- Se necessário, criar a PK
+);
+
+-- Informar seu schema abaixo
+CREATE INDEX idx_gcoligada_idx ON <schema>.rm_gcoligada USING btree (codcoligada);
