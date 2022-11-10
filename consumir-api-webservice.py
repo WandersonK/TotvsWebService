@@ -30,11 +30,9 @@ key_tables = {"pfunc": "id",
 # Definindo local para salvar o log
 if system() == 'Windows':
     dir_save = environ['HOMEPATH'] + '\\logrm\\'  # Windows
-    arquivo_save = dir_save + 'saida.xml'  # Windows
 elif system() == 'Linux':
-    dir_save = environ['HOME'] + '/logrm/'  # Linux
+    # dir_save = environ['HOME'] + '/logrm/'  # Linux
     dir_save = '/var/log/logrm/' # Linux
-    # arquivo_save = dir_save + 'saida.xml'  # Linux
 
 # Criando a pasta de log caso ela não exita
 if not path.isdir(dir_save):
