@@ -151,8 +151,7 @@ def excluir_log_antigo():
             vida_arquivo = date.fromtimestamp(path.getmtime(path_arquivo))
     
             if path.isfile(path_arquivo) and vida_arquivo < tempo_delete_arq_log:
-                # remove(path_arquivo)
-                print(path_arquivo)
+                remove(path_arquivo)
 
 
 for key_table_idx in key_tables.keys():
