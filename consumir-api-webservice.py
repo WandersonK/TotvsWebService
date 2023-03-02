@@ -142,7 +142,7 @@ def gravar_log(arquivo_log, mensagem):
     
 
 def excluir_log_antigo():
-    tempo_delete_arq_log= date.today() - timedelta(30)
+    tempo_delete_arq_log= date.today() - timedelta(60)  # Definir quantos dias para excluir os arquivos de log, atual 60 dias
     
     for dir_completo, dir_name, file_names_list in walk(dir_save):
         for file_name in file_names_list:
