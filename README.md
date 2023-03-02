@@ -28,7 +28,7 @@ Pacotes necessários:
 
 * pip install totvserprm
 * pip install beautifulsoup4
-* pip install psycopg
+* pip install psycopg2
 * pip install lxml
 
 Na pasta DDL_Banco estão as DDLs para criação das tabelas utilizadas aqui. Caso necessário, altere conforme suas necessidades.
