@@ -121,13 +121,13 @@ def push_dbpostgres_insert(conteudo_xml, key_table_idx):
     
     except Exception as erro_rotina:
         # Log em caso de erro
-        mensagem = f'\n[{data_log}] (-> Falha) Ocorreu o seguinte erro na rotina: {erro_rotina}\n     {erro_rotina.with_traceback}'
+        mensagem = f'\n[{data_log}] (-> Falha) Ocorreu o seguinte erro na rotina para a tabela {key_table_idx}: {erro_rotina}\n     {erro_rotina.with_traceback}'
         arquivo_log = f'{dir_save}/rotina_webservicetotvs_{data_execucao}_stderr.log'
         gravar_log(arquivo_log, mensagem)
         
     else:
         # Log em caso de êxito
-        mensagem = f'\n[{data_log}] (-> Êxito) A rotina foi executada sem erros.'
+        mensagem = f'\n[{data_log}] (-> Êxito) A rotina foi executada sem erros para a tabela {key_table_idx}.'
         arquivo_log = f'{dir_save}/rotina_webservicetotvs_{data_execucao}.log'
         gravar_log(arquivo_log, mensagem)
 
